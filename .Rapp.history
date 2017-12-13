@@ -1,0 +1,54 @@
+setwd()
+getwd()
+setwd('/Users/Vinit/Documents/PROJECTS_MY/IMDB_MYPROJECT/extras')
+require(stringr)#
+WordList <- str_split(readLines("output.txt"), pattern = " ")#
+text<-paste(unlist(WordList), collapse=' ')#
+str(text)#
+library(dplyr)#
+text_df <- data_frame(line = 1, text = text)#
+text_df#
+library(tidytext)#
+text_df2 <- text_df %>%#
+  unnest_tokens(word,text)#
+data(stop_words)#
+text_df2 <- text_df2 %>%#
+  anti_join(stop_words)#
+tibble<-text_df2 %>%#
+  count(word,sort=TRUE)#
+tibblefiltered = tibble %>% filter(n > 4)#
+#Wordclouds#
+library(wordcloud)#
+text_df2 %>%#
+  anti_join(stop_words) %>%#
+  count(word) %>%#
+  with(wordcloud(word, n, max.words = 100, colors=brewer.pal(8, "Dark2")))
+barplot(tibblefiltered[1:2]$n, las = 2, names.arg = tibblefiltered[1:2]$word,#
+        col ="maroon", main ="Most frequent words",#
+        ylab = "Word frequencies")
+library(reshape2)#
+text_df2 %>%#
+  filter()#
+text_df2 %>%#
+  inner_join(get_sentiments("bing")) %>%#
+  count(word, sentiment, sort=TRUE) %>%#
+  acast(word ~ sentiment, value.var = "n", fill = 0) %>%#
+  comparison.cloud(colors = c("darkred", "darkgreen"), max.words=100)
+library(ggplot2)#
+library(janeaustenr)#
+library(tidyr)#
+bing_word_counts <- text_df2 %>%#
+  inner_join(get_sentiments("bing")) %>%#
+  count(word, sentiment, sort = TRUE) %>%#
+  ungroup()#
+bing_word_counts %>%#
+  group_by(sentiment) %>%#
+  top_n(10) %>%#
+  ungroup() %>%#
+  mutate(word = reorder(word, n)) %>%#
+  ggplot(aes(word, n, fill = sentiment)) +#
+  geom_col(show.legend = FALSE) +#
+  facet_wrap(~sentiment, scales = "free_y") +#
+  labs(y = "Contribution to sentiment",#
+       x = NULL) +#
+  coord_flip()
